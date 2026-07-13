@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The AI Diplomat is a structured decision rehearsal room: surface assumptions, debate trade-offs, and commit to a reversible next step.">
+<title>The AI Diplomat — Multi-Agent Decision Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300..700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', 'Helvetica Neue', sans-serif;
+  --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+  --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+  --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+  --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+  --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+  --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+  --text-hero: clamp(2.5rem,   1rem    + 4vw,    5rem);
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+  --space-12:3rem;--space-16:4rem;--space-20:5rem;--space-24:6rem;
+  --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;
+  --radius-xl:1rem;--radius-full:9999px;
+  --transition:180ms cubic-bezier(0.16,1,0.3,1);
+  --agent-devil:#e05252;--agent-opt:#52c07a;--agent-risk:#5e9fe8;
+  --agent-psych:#b97de8;--agent-med:#c9a96e;
+}
+[data-theme="dark"]{
+  --color-bg:#0e0d0c;--color-surface:#141312;--color-surface-2:#1a1917;
+  --color-surface-offset:#1f1e1c;--color-surface-dynamic:#2a2927;
+  --color-divider:#2d2c2a;--color-border:#363533;
+  --color-text:#e8e6e3;--color-text-muted:#8a8884;--color-text-faint:#5a5957;
+  --color-text-inverse:#1a1917;--color-primary:#c9a96e;
+  --color-primary-hover:#e0c08a;--color-primary-active:#b8954e;
+  --color-primary-highlight:rgba(201,169,110,0.12);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);--shadow-md:0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+}
+[data-theme="light"]{
+  --color-bg:#f9f7f4;--color-surface:#fdfcfa;--color-surface-2:#ffffff;
+  --color-surface-offset:#f3f0ec;--color-surface-dynamic:#ebe8e3;
+  --color-divider:#ddd9d4;--color-border:#d0ccc7;
+  --color-text:#1c1a17;--color-text-muted:#6b6864;--color-text-faint:#b0adaa;
+  --color-text-inverse:#f9f7f4;--color-primary:#9a6f2e;
+  --color-primary-hover:#7a5420;--color-primary-active:#5c3a12;
+  --color-primary-highlight:rgba(154,111,46,.1);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);
+  color:var(--color-text);background:var(--color-bg);
+  transition:background .3s ease,color .3s ease;}
+img,svg{display:block;max-width:100%;}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit;}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm);}
+p{text-wrap:pretty;}h1,h2,h3,h4{text-wrap:balance;line-height:1.15;}
+.container{max-width:880px;margin-inline:auto;padding-inline:var(--space-6);}
+.container--wide{max-width:1080px;margin-inline:auto;padding-inline:var(--space-6);}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;
+  background:color-mix(in oklab,var(--color-bg) 85%,transparent);
+  backdrop-filter:blur(16px);border-bottom:1px solid var(--color-divider);
+  padding:var(--space-4) 0;}
+.header-inner{display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:var(--space-3);text-decoration:none;color:var(--color-text);}
+.logo-icon{color:var(--color-primary);}
+.logo-text{font-family:var(--font-display);font-size:var(--text-lg);letter-spacing:-.01em;}
+.logo-text span{color:var(--color-primary);}
+.theme-toggle{width:36px;height:36px;border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--color-text-muted);background:var(--color-surface);
+  border:1px solid var(--color-border);transition:all var(--transition);}
+.theme-toggle:hover{color:var(--color-text);border-color:var(--color-text-muted);}
+.header-actions{display:flex;align-items:center;gap:var(--space-3);}
+.mode-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--color-border);border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);background:var(--color-surface);}
+.mode-badge.live{color:var(--agent-opt);border-color:color-mix(in oklab,var(--agent-opt) 45%,var(--color-border));}
+.mode-badge.demo{color:var(--color-primary);}
+
+/* HERO */
+.hero{padding:var(--space-20) 0 var(--space-16);text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,color-mix(in oklab,var(--color-primary) 8%,transparent),transparent 70%);
+  pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-1) var(--space-4);border-radius:var(--radius-full);
+  border:1px solid color-mix(in oklab,var(--color-primary) 40%,var(--color-border));
+  background:var(--color-primary-highlight);color:var(--color-primary);
+  font-size:var(--text-xs);font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+  margin-bottom:var(--space-8);}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--color-primary);
+  animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.hero-title{font-family:var(--font-display);font-size:var(--text-hero);
+  line-height:1.05;letter-spacing:-.02em;color:var(--color-text);margin-bottom:var(--space-6);}
+.hero-title em{font-style:italic;color:var(--color-primary);}
+.hero-subtitle{font-size:var(--text-lg);color:var(--color-text-muted);
+  max-width:56ch;margin-inline:auto;line-height:1.6;margin-bottom:var(--space-12);}
+.hero-agents{display:flex;align-items:center;justify-content:center;
+  gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-12);}
+.agent-chip{display:flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-2) var(--space-4);border-radius:var(--radius-full);
+  background:var(--color-surface);border:1px solid var(--color-border);
+  font-size:var(--text-xs);font-weight:500;color:var(--color-text-muted);}
+.agent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* INPUT */
+.input-section{background:var(--color-surface);border-radius:var(--radius-xl);
+  border:1px solid var(--color-border);padding:var(--space-6);box-shadow:var(--shadow-md);
+  max-width:700px;margin:0 auto;}
+.input-label{display:block;font-size:var(--text-sm);font-weight:600;
+  color:var(--color-text-muted);letter-spacing:.03em;text-transform:uppercase;
+  margin-bottom:var(--space-3);}
+.input-area{width:100%;background:var(--color-bg);border:1px solid var(--color-border);
+  border-radius:var(--radius-lg);padding:var(--space-4);
+  font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);
+  resize:vertical;min-height:90px;line-height:1.6;
+  transition:border-color var(--transition),box-shadow var(--transition);}
+.input-area:focus{outline:none;border-color:var(--color-primary);
+  box-shadow:0 0 0 3px var(--color-primary-highlight);}
+.input-area::placeholder{color:var(--color-text-faint);}
+.input-help{margin-top:var(--space-3);font-size:var(--text-xs);line-height:1.5;color:var(--color-text-faint);text-align:left;}
+.safety-note{margin-top:var(--space-4);padding:var(--space-3) var(--space-4);border-left:2px solid var(--color-primary);font-size:var(--text-xs);line-height:1.55;color:var(--color-text-muted);text-align:left;background:var(--color-primary-highlight);border-radius:0 var(--radius-sm) var(--radius-sm) 0;}
+.decision-canvas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3);margin-top:var(--space-4);text-align:left;}.canvas-field{display:flex;flex-direction:column;gap:var(--space-1);}.canvas-field label{font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);}.canvas-field input,.canvas-field select{width:100%;padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-bg);color:var(--color-text);font:inherit;font-size:var(--text-sm);}.canvas-field.full{grid-column:1/-1;}
+.input-footer{display:flex;align-items:center;justify-content:space-between;
+  margin-top:var(--space-4);gap:var(--space-4);flex-wrap:wrap;}
+.scenario-chips{display:flex;gap:var(--space-2);flex-wrap:wrap;}
+.scenario-chip{padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);
+  border:1px solid var(--color-border);background:transparent;
+  font-size:var(--text-xs);color:var(--color-text-muted);cursor:pointer;
+  transition:all var(--transition);}
+.scenario-chip:hover{border-color:var(--color-primary);color:var(--color-primary);
+  background:var(--color-primary-highlight);}
+.btn-main{display:inline-flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-3) var(--space-6);background:var(--color-primary);
+  color:var(--color-text-inverse);border-radius:var(--radius-md);
+  font-size:var(--text-sm);font-weight:600;letter-spacing:.02em;white-space:nowrap;
+  box-shadow:var(--shadow-sm);transition:all var(--transition);}
+.btn-main:hover{background:var(--color-primary-hover);box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.btn-main:active{transform:translateY(0);}
+.btn-main:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+/* PROGRESS */
+.progress-bar{height:2px;background:var(--color-divider);border-radius:var(--radius-full);
+  overflow:hidden;margin-bottom:var(--space-8);display:none;}
+.progress-bar.visible{display:block;}
+.progress-fill{height:100%;background:var(--color-primary);border-radius:var(--radius-full);
+  width:0;transition:width .4s ease;}
+
+/* DEBATE SECTION */
+.debate-section{padding:var(--space-12) 0 var(--space-20);display:none;}
+.debate-section.visible{display:block;}
+.section-label{font-size:var(--text-xs);font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--color-text-faint);margin-bottom:var(--space-8);
+  display:flex;align-items:center;gap:var(--space-3);}
+.section-label::after{content:'';flex:1;height:1px;background:var(--color-divider);}
+
+/* AGENT PANELS */
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));
+  gap:var(--space-4);margin-bottom:var(--space-8);}
+.agent-panel{background:var(--color-surface);border:1px solid var(--color-border);
+  border-radius:var(--radius-xl);overflow:hidden;
+  transition:box-shadow var(--transition),border-color var(--transition);}
+.agent-panel.speaking{box-shadow:var(--shadow-lg);
+  border-color:color-mix(in oklab,var(--agent-color,var(--color-primary)) 40%,var(--color-border));}
+.panel-head{display:flex;align-items:center;gap:var(--space-3);
+  padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--color-divider);
+  background:var(--color-surface-offset);}
+.agent-avatar{width:36px;height:36px;border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+  background:var(--color-surface-dynamic);border:2px solid transparent;
+  transition:border-color var(--transition);}
+.agent-panel.speaking .agent-avatar{border-color:var(--agent-color,var(--color-primary));}
+.agent-name{font-size:var(--text-sm);font-weight:600;color:var(--color-text);}
+.agent-role{font-size:var(--text-xs);color:var(--color-text-muted);}
+.agent-status{margin-left:auto;display:flex;align-items:center;gap:var(--space-2);
+  font-size:var(--text-xs);color:var(--color-text-faint);}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--color-text-faint);
+  transition:background var(--transition);}
+.agent-panel.speaking .status-dot{background:var(--agent-color,var(--color-primary));
+  animation:pulse 1s ease infinite;}
+.panel-body{padding:var(--space-5);min-height:120px;}
+.agent-msg{font-size:var(--text-sm);line-height:1.7;color:var(--color-text);}
+.agent-msg.empty{color:var(--color-text-faint);font-style:italic;}
+.agent-facts{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:var(--space-4);padding-top:var(--space-4);border-top:1px solid var(--color-divider);}.agent-fact{padding:var(--space-2);border-radius:var(--radius-sm);background:var(--color-surface-offset);font-size:var(--text-xs);line-height:1.45;color:var(--color-text-muted);}.agent-fact strong{display:block;color:var(--color-text);font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px;}
+.round-label{display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-muted);margin:var(--space-4) 0 var(--space-3);}
+.round-label::before,.round-label::after{content:'';height:1px;flex:1;background:var(--color-divider);}
+.round-two{padding-top:var(--space-4);border-top:1px solid var(--color-divider);}
+.typing::after{content:'|';animation:blink .7s step-end infinite;color:var(--color-primary);margin-left:1px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* MEDIATOR */
+.mediator-wrap{background:linear-gradient(135deg,color-mix(in oklab,var(--color-primary) 6%,var(--color-surface)),var(--color-surface));
+  border:1px solid color-mix(in oklab,var(--color-primary) 30%,var(--color-border));
+  border-radius:var(--radius-xl);padding:var(--space-8);margin-top:var(--space-8);
+  box-shadow:var(--shadow-lg);display:none;}
+.mediator-wrap.visible{display:block;}
+.med-head{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-6);}
+.med-icon{width:44px;height:44px;border-radius:var(--radius-full);
+  background:color-mix(in oklab,var(--color-primary) 15%,var(--color-surface-offset));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  border:2px solid color-mix(in oklab,var(--color-primary) 40%,var(--color-border));}
+.med-title{font-family:var(--font-display);font-size:var(--text-xl);color:var(--color-text);}
+.med-sub{font-size:var(--text-xs);color:var(--color-text-muted);letter-spacing:.04em;text-transform:uppercase;}
+.verdict-summary{font-size:var(--text-base);line-height:1.8;color:var(--color-text);margin-bottom:var(--space-6);}
+.verdict-list{list-style:none;display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-6);}
+.verdict-item{display:flex;align-items:flex-start;gap:var(--space-3);
+  padding:var(--space-3) var(--space-4);background:var(--color-surface);
+  border-radius:var(--radius-md);border:1px solid var(--color-divider);
+  font-size:var(--text-sm);line-height:1.6;color:var(--color-text);}
+.verdict-arrow{font-size:14px;margin-top:2px;flex-shrink:0;color:var(--color-primary);}
+.rec-box{font-size:var(--text-base);font-weight:600;color:var(--color-primary);
+  margin-top:var(--space-4);padding:var(--space-4);background:var(--color-primary-highlight);
+  border-radius:var(--radius-md);
+  border:1px solid color-mix(in oklab,var(--color-primary) 25%,var(--color-border));}
+.conf-bar{margin-top:var(--space-6);}
+.conf-label{display:flex;justify-content:space-between;font-size:var(--text-xs);
+  color:var(--color-text-muted);margin-bottom:var(--space-2);}
+.conf-track{height:6px;background:var(--color-surface-dynamic);border-radius:var(--radius-full);overflow:hidden;}
+.conf-fill{height:100%;background:linear-gradient(90deg,var(--color-primary),var(--agent-opt));
+  border-radius:var(--radius-full);width:0;transition:width 1.5s cubic-bezier(0.16,1,0.3,1);}
+.confidence-note{margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-faint);}
+.verdict-conditions{margin-top:var(--space-5);font-size:var(--text-sm);line-height:1.6;color:var(--color-text-muted);}
+.brief-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4);margin-top:var(--space-6);}.brief-card{padding:var(--space-4);border:1px solid var(--color-divider);border-radius:var(--radius-md);background:var(--color-surface);}.brief-card h3{font-size:var(--text-xs);letter-spacing:.07em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:var(--space-2);}.brief-card p{font-size:var(--text-sm);line-height:1.6;color:var(--color-text);}.council-map{margin-top:var(--space-6);padding:var(--space-5);border:1px solid var(--color-divider);border-radius:var(--radius-md);background:var(--color-surface);}.map-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-4);}.map-head h3{font-size:var(--text-sm);}.map-head span{font-size:var(--text-xs);color:var(--color-text-faint);}.map-row{display:grid;grid-template-columns:120px 1fr 42px;align-items:center;gap:var(--space-3);margin-top:var(--space-3);font-size:var(--text-xs);}.map-track{height:8px;border-radius:var(--radius-full);background:var(--color-surface-dynamic);overflow:hidden;}.map-fill{height:100%;border-radius:inherit;}.map-value{text-align:right;color:var(--color-text-muted);}
+.path-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3);margin-top:var(--space-6);}.path-card{padding:var(--space-4);border:1px solid var(--color-divider);border-radius:var(--radius-md);background:var(--color-surface);}.path-card h3{font-size:var(--text-sm);margin-bottom:var(--space-2);}.path-card p{font-size:var(--text-xs);line-height:1.55;color:var(--color-text-muted);}.path-card.recommended{border-color:var(--color-primary);background:var(--color-primary-highlight);}.quality-strip{margin-top:var(--space-6);display:flex;gap:var(--space-2);flex-wrap:wrap;}.quality-pill{padding:var(--space-2) var(--space-3);border-radius:var(--radius-full);border:1px solid var(--color-divider);font-size:var(--text-xs);color:var(--color-text-muted);}
+
+/* DEBATE LOG */
+.debate-log{margin-top:var(--space-8);background:var(--color-surface);
+  border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;display:none;}
+.debate-log.visible{display:block;}
+.log-head{display:flex;align-items:center;justify-content:space-between;
+  padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--color-divider);
+  background:var(--color-surface-offset);}
+.log-title{font-size:var(--text-sm);font-weight:600;color:var(--color-text);}
+.log-body{padding:var(--space-4);max-height:300px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:var(--space-3);}
+.log-entry{display:flex;gap:var(--space-3);animation:slideIn .3s cubic-bezier(0.16,1,0.3,1);}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.log-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;flex-shrink:0;background:var(--color-surface-dynamic);}
+.log-name{font-size:var(--text-xs);font-weight:600;}
+.log-time{font-size:10px;color:var(--color-text-faint);}
+.log-meta{display:flex;align-items:center;gap:var(--space-2);margin-bottom:3px;}
+.log-text{font-size:var(--text-sm);line-height:1.6;color:var(--color-text);}
+
+/* HOW */
+.how-section{padding:var(--space-20) 0;border-top:1px solid var(--color-divider);}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));
+  gap:var(--space-6);margin-top:var(--space-12);}
+.how-card{padding:var(--space-6);background:var(--color-surface);
+  border:1px solid var(--color-border);border-radius:var(--radius-xl);}
+.how-num{font-family:var(--font-display);font-size:var(--text-2xl);
+  color:var(--color-primary);opacity:.4;line-height:1;margin-bottom:var(--space-4);}
+.how-ttl{font-size:var(--text-base);font-weight:600;margin-bottom:var(--space-2);color:var(--color-text);}
+.how-desc{font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.7;}
+
+/* FOOTER */
+.footer{border-top:1px solid var(--color-divider);padding:var(--space-8) 0;
+  text-align:center;color:var(--color-text-faint);font-size:var(--text-xs);}
+.footer-pill{display:inline-flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-2) var(--space-4);background:var(--color-surface);
+  border:1px solid var(--color-border);border-radius:var(--radius-full);
+  color:var(--color-text-muted);font-size:var(--text-xs);margin-bottom:var(--space-4);}
+.action-row{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-6);}
+.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);padding:var(--space-3) var(--space-5);border:1px solid var(--color-primary);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;color:var(--color-primary);transition:all var(--transition);}
+.btn-secondary:hover{background:var(--color-primary-highlight);}
+.btn-secondary[hidden]{display:none;}
+.status-message{max-width:700px;margin:var(--space-4) auto 0;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:var(--text-sm);line-height:1.5;display:none;text-align:left;}
+.status-message.visible{display:block;}.status-message.error{background:color-mix(in oklab,var(--agent-devil) 12%,var(--color-surface));border:1px solid color-mix(in oklab,var(--agent-devil) 35%,var(--color-border));color:var(--color-text);}.status-message.info{background:var(--color-primary-highlight);border:1px solid color-mix(in oklab,var(--color-primary) 35%,var(--color-border));}
+.modal-backdrop{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:var(--space-6);background:rgba(0,0,0,.58);backdrop-filter:blur(8px);}.modal-backdrop.visible{display:flex;}
+.modal{width:min(100%,440px);background:var(--color-surface);border:1px solid var(--color-border);box-shadow:var(--shadow-lg);border-radius:var(--radius-xl);padding:var(--space-8);}.modal h2{font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--space-3);}.modal p{font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.6;margin-bottom:var(--space-5);}.key-input{width:100%;padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-bg);color:var(--color-text);font:inherit;}.modal-actions{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-5);}.modal-actions .btn-main{margin-left:auto;}
+.assumption-list{display:flex;flex-direction:column;gap:var(--space-3);}.assumption-row{display:flex;gap:var(--space-2);align-items:center;}.assumption-row input{flex:1;}.assumption-row button{padding:var(--space-2);font-size:var(--text-xs);color:var(--agent-devil);}.checkpoint-note{font-size:var(--text-xs)!important;margin-top:var(--space-4)!important;margin-bottom:0!important;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important;}}
+
+@media(max-width:640px){
+  .hero{padding:var(--space-16) 0 var(--space-12);}
+  .hero-agents{display:none;}
+  .input-footer{flex-direction:column;align-items:stretch;}
+  .btn-main{width:100%;justify-content:center;}
+  .agents-grid{grid-template-columns:1fr;}
+  .mode-badge{display:none;}
+  .decision-canvas,.brief-grid,.path-options{grid-template-columns:1fr;}.canvas-field.full{grid-column:auto;}.map-row{grid-template-columns:94px 1fr 36px;}.agent-facts{grid-template-columns:1fr;}
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="#" class="logo">
+        <svg class="logo-icon" width="26" height="26" viewBox="0 0 28 28" fill="none" aria-label="The AI Diplomat">
+          <circle cx="14" cy="14" r="12" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="14" cy="9" r="2.5" fill="currentColor" opacity=".9"/>
+          <circle cx="8" cy="18" r="2.5" fill="currentColor" opacity=".7"/>
+          <circle cx="20" cy="18" r="2.5" fill="currentColor" opacity=".7"/>
+          <line x1="14" y1="11.5" x2="8.8" y2="15.7" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+          <line x1="14" y1="11.5" x2="19.2" y2="15.7" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+          <line x1="9.8" y1="18" x2="18.2" y2="18" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+        </svg>
+        <span class="logo-text">The AI <span>Diplomat</span></span>
+      </a>
+      <div class="header-actions">
+      <span class="mode-badge demo" id="mode-badge" aria-live="polite">◇ Demo Mode</span>
+      <button class="theme-toggle" data-theme-toggle aria-label="Switch to light theme" aria-pressed="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><div class="badge-dot"></div>OpenAI Build Week 2026</div>
+    <h1 class="hero-title">Five AI minds.<br><em>One hard decision.</em></h1>
+    <p class="hero-subtitle">The AI Diplomat convenes a council of specialized agents that argue, challenge, and negotiate — so you get truth, not just an answer.</p>
+    <div class="hero-agents">
+      <div class="agent-chip"><div class="agent-dot" style="background:var(--agent-devil)"></div>Devil's Advocate</div>
+      <div class="agent-chip"><div class="agent-dot" style="background:var(--agent-opt)"></div>Optimist</div>
+      <div class="agent-chip"><div class="agent-dot" style="background:var(--agent-risk)"></div>Risk Analyst</div>
+      <div class="agent-chip"><div class="agent-dot" style="background:var(--agent-psych)"></div>Psychologist</div>
+      <div class="agent-chip"><div class="agent-dot" style="background:var(--agent-med)"></div>Mediator</div>
+    </div>
+    <div class="input-section">
+      <label class="input-label" for="decision-input">What decision are you facing?</label>
+      <textarea id="decision-input" class="input-area" maxlength="1500" aria-describedby="decision-help" placeholder="e.g. Should I quit my job, move abroad, and start my own company?" rows="3"></textarea>
+      <p class="input-help" id="decision-help">Avoid sharing private identifiers. You can correct assumptions after the council’s first round.</p>
+      <div class="decision-canvas" aria-label="Optional decision context">
+        <div class="canvas-field"><label for="time-horizon">Decision horizon</label><select id="time-horizon"><option value="Not specified">Not specified</option><option>Days to weeks</option><option>1–6 months</option><option>6–24 months</option><option>2+ years</option></select></div>
+        <div class="canvas-field"><label for="reversibility">How reversible is it?</label><select id="reversibility"><option value="Not specified">Not specified</option><option>Easy to reverse</option><option>Costly to reverse</option><option>Hard to reverse</option></select></div>
+        <div class="canvas-field"><label for="downside-limit">Maximum acceptable downside</label><input id="downside-limit" type="text" maxlength="100" placeholder="e.g. €5,000 or 3 months"></div>
+        <div class="canvas-field"><label for="people-affected">Who else is affected?</label><input id="people-affected" type="text" maxlength="100" placeholder="e.g. partner, children, team"></div>
+        <div class="canvas-field"><label for="checkpoint-date">Decision check-in</label><input id="checkpoint-date" type="date"></div>
+        <div class="canvas-field full"><label for="success-definition">What would make this decision a success?</label><input id="success-definition" type="text" maxlength="160" placeholder="e.g. validate demand without exhausting savings"></div>
+      </div>
+      <div class="input-footer">
+        <div class="scenario-chips">
+          <button class="scenario-chip" type="button">Career change</button>
+          <button class="scenario-chip" type="button">Start a company</button>
+          <button class="scenario-chip" type="button">Relocate abroad</button>
+          <button class="scenario-chip" type="button">Big investment</button>
+        </div>
+        <button class="btn-main" id="deliberate-btn" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Deliberate
+        </button>
+      </div>
+      <p class="safety-note">The AI Diplomat is a thinking partner, not professional legal, medical, financial, or emergency advice. For urgent safety concerns, contact local emergency or crisis services.</p>
+    </div>
+    <div class="status-message" id="status-message" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+<section class="debate-section container--wide" id="debate-section">
+  <h2 class="section-label">Council in Session</h2>
+  <div class="agents-grid" id="agents-grid"></div>
+  <div class="debate-log" id="debate-log">
+    <div class="log-head">
+      <span class="log-title">Live Deliberation Transcript</span>
+      <span style="font-size:var(--text-xs);color:var(--color-text-faint)" id="log-count">0 exchanges</span>
+    </div>
+    <div class="log-body" id="log-body"></div>
+  </div>
+  <div class="mediator-wrap" id="mediator-wrap">
+    <div class="med-head">
+      <div class="med-icon">⚖️</div>
+      <div><div class="med-title">The Verdict</div><div class="med-sub">Synthesized consensus</div></div>
+    </div>
+    <p class="verdict-summary" id="verdict-summary"></p>
+    <ul class="verdict-list" id="verdict-list"></ul>
+    <div id="rec-box"></div>
+    <div class="conf-bar">
+      <div class="conf-label"><span>Consensus confidence</span><span id="conf-pct">—</span></div>
+      <div class="conf-track"><div class="conf-fill" id="conf-fill"></div></div>
+      <p class="confidence-note" id="confidence-note"></p>
+    </div>
+    <p class="verdict-conditions" id="verdict-conditions"></p>
+    <div class="brief-grid" id="brief-grid"></div>
+    <div class="council-map" id="council-map"></div>
+    <div class="path-options" id="path-options"></div>
+    <div class="quality-strip" aria-label="Decision quality checks"><span class="quality-pill">✓ Assumptions checked</span><span class="quality-pill">✓ Dissent preserved</span><span class="quality-pill">✓ Reversible next step</span></div>
+    <div class="action-row"><button class="btn-secondary" id="download-transcript" type="button" hidden>Download Decision Brief</button><button class="btn-secondary" id="calendar-checkpoint" type="button" hidden>Add Check-in to Calendar</button><button class="btn-secondary" id="retry-live" type="button" hidden>Retry Live Mode</button></div>
+  </div>
+</section>
+
+<section class="how-section">
+  <div class="container">
+  <h2 class="section-label">How It Works</h2>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-num">01</div><div class="how-ttl">State your decision</div><div class="how-desc">Any life, career, financial, or business decision in plain language. The harder, the better.</div></div>
+      <div class="how-card"><div class="how-num">02</div><div class="how-ttl">Five agents convene</div><div class="how-desc">Each agent has a distinct role. They don't agree. Truth emerges from structured disagreement.</div></div>
+      <div class="how-card"><div class="how-num">03</div><div class="how-ttl">The debate unfolds</div><div class="how-desc">Powered by GPT-5.6, agents build on, challenge, and refine each other's views in real time.</div></div>
+      <div class="how-card"><div class="how-num">04</div><div class="how-ttl">Verdict synthesized</div><div class="how-desc">The Mediator reads all perspectives and produces a consensus verdict — every step visible.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494z"/></svg>
+      Powered by GPT-5.6 &amp; Codex · OpenAI Build Week 2026
+    </div>
+    <p>Built by Moses Osabutey · The AI Diplomat · Apps for Your Life Track</p>
+  </div>
+</footer>
+
+<div class="modal-backdrop" id="key-modal" role="dialog" aria-modal="true" aria-labelledby="key-modal-title" aria-hidden="true">
+  <div class="modal">
+    <h2 id="key-modal-title">Choose your council</h2>
+    <p>Use your own OpenAI API key for a live GPT-5.6 deliberation. It stays only in this page’s memory and is never saved by the app. Your decision text is sent to OpenAI in Live Mode.</p>
+    <label class="input-label" for="api-key-input">OpenAI API key</label>
+    <input id="api-key-input" class="key-input" type="password" autocomplete="off" spellcheck="false" placeholder="sk-...">
+    <div class="modal-actions"><button class="btn-secondary" id="close-key-modal" type="button">Not now</button><button class="btn-secondary" id="use-demo" type="button">Use Demo Mode</button><button class="btn-main" id="use-live" type="button">Use Live GPT-5.6</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="assumption-modal" role="dialog" aria-modal="true" aria-labelledby="assumption-modal-title" aria-hidden="true">
+  <div class="modal">
+    <h2 id="assumption-modal-title">Check the council’s assumptions</h2>
+    <p>Before rebuttals, correct anything the council may be taking for granted. This changes the final recommendation.</p>
+    <div class="assumption-list" id="assumption-list"></div>
+    <p class="checkpoint-note">Delete an assumption if it does not apply, or rewrite it with the missing fact.</p>
+    <div class="modal-actions"><button class="btn-secondary" id="cancel-assumption" type="button">Cancel</button><button class="btn-main" id="continue-rebuttal" type="button">Continue to Rebuttals</button></div>
+  </div>
+</div>
+
+<script>
+const AGENTS=[
+  {id:'devil',name:"Devil's Advocate",role:'Challenges every assumption',emoji:'😈',color:'var(--agent-devil)',sys:"You are a sharp devil's advocate. Challenge assumptions and expose specific risks. Be constructive, direct, and humane. Keep every field concise."},
+  {id:'opt',name:'The Optimist',role:'Champions the upside',emoji:'🌟',color:'var(--agent-opt)',sys:"You are a grounded optimist. Identify realistic upside, leverage, and conditions for success. Acknowledge meaningful risk. Keep every field concise."},
+  {id:'risk',name:'Risk Analyst',role:'Quantifies exposure',emoji:'📊',color:'var(--agent-risk)',sys:"You are a precise risk analyst. Cover financial, timing, execution, and reversibility. State assumptions and rough probability ranges where useful. Keep every field concise."},
+  {id:'psych',name:'The Psychologist',role:'Human factors & emotions',emoji:'🧠',color:'var(--agent-psych)',sys:"You are an insightful psychologist. Explore values, fears, cognitive biases, and emotional sustainability. Do not diagnose. Keep every field concise."}
+];
+const MED={name:'The Mediator',emoji:'⚖️',color:'var(--agent-med)'};
+const SCENARIOS={'Career change':'I have been offered a senior role at a startup that pays 20% less than my current job but offers equity. Should I take it?','Start a company':'I want to quit my job and start my own AI company. I have 6 months of savings and one potential client. Should I do it?','Relocate abroad':'My partner and I are considering leaving Iceland and moving to Portugal. We have no jobs lined up. Should we go?','Big investment':'I have €30,000 saved. Should I invest it all in index funds right now, or wait given economic uncertainty?'};
+const DEMOS={
+  career:{responses:{devil:['A 20% salary cut is not a symbolic sacrifice; it changes your leverage if the startup struggles. Treat the equity as uncertain until you understand vesting, dilution, and the company’s runway.','The upside case assumes the title and equity will compound faster than your current trajectory. What the others miss is that a weak offer can lock you into doing senior work without senior cash.'],opt:['A senior startup role can accelerate scope, ownership, and future optionality faster than a stable ladder. If the team and mandate are strong, the salary reduction may be a deliberate investment in career capital.','The risk analysis is right to demand diligence, but it should not erase the value of working where your contribution is legible and high-leverage.'],risk:['Your exposure is concentrated in salary reduction and equity uncertainty. Ask for valuation, vesting, exercise terms, runway, and a compensation review date before accepting.','The decision becomes more attractive if you can absorb the pay cut for 12 months and the company has 18+ months of runway.'],psych:['Make sure you are choosing expansion, not only reacting to boredom or frustration in your current role. Your tolerance for ambiguity matters as much as the package.','Notice whether status loss from a smaller company feels energizing or threatening; that emotional signal will shape how you interpret the same facts.']},verdict:{summary:'The council sees a credible career bet, but only if the equity and runway become concrete rather than aspirational.',points:['Verify dilution, vesting, exercise terms, and company runway.','Price the 20% cut against a 12-month personal budget.','Negotiate a written compensation review at a defined milestone.','Choose the role for scope and learning, not the romance of startup equity.'],confidence:74,recommendation:'Proceed only after completing diligence and negotiating a downside boundary you can live with.',conditions:'Pause if the company cannot explain runway or the equity terms clearly.',experiment:'Request the cap-table context, runway, and a 30-minute conversation with the founder this week.',stopLoss:'Decline if the cash cut threatens your 12-month financial stability.',councilMap:[{id:'devil',readiness:32,reason:'Equity uncertainty'},{id:'opt',readiness:72,reason:'Career leverage'},{id:'risk',readiness:48,reason:'Cash exposure'},{id:'psych',readiness:62,reason:'Values fit'}]}},
+  founder:{responses:{devil:['Six months of savings is not six months of founder runway once delayed invoices, taxes, and stress spending appear. One potential client is a lead, not validation.','The others may be too charitable about resilience; a slow sales cycle can consume both savings and confidence at the same time.'],opt:['This is a rare moment to test an idea with low tooling costs and a real market signal. You do not need certainty—you need a disciplined experiment.','A signed first customer would turn this from a leap into a focused validation sprint.'],risk:['Financial risk is high until the potential client becomes contracted revenue. Set a minimum runway and a date by which traction must appear.','The key metric is paid demand, not product progress. Track cash and customer conversations weekly.'],psych:['Separate the desire for agency from the urge to escape your current job. The company should be a choice you can sustain emotionally, not a rescue fantasy.','Planning fallacy is likely here: build a schedule that includes rejection, uncertainty, and recovery time.']},verdict:{summary:'The council supports testing the company, not blindly quitting for it.',points:['Convert the potential client into a paid commitment first.','Budget for a shorter runway than the headline savings figure.','Define customer traction before building extensively.','Protect your emotional runway with a review cadence.'],confidence:79,recommendation:'Run a 30-day pre-resignation validation sprint, then decide with evidence.',conditions:'Do not resign before a signed customer commitment or a revised runway you can accept.',experiment:'Ask the potential client for a paid pilot with a start date and success criteria.',stopLoss:'Keep your role or seek contract work if paid traction is absent after 30 days.',councilMap:[{id:'devil',readiness:28,reason:'Runway fragility'},{id:'opt',readiness:76,reason:'Low-cost test'},{id:'risk',readiness:38,reason:'Revenue proof'},{id:'psych',readiness:64,reason:'Motivation check'}]}},
+  relocate:{responses:{devil:['Moving countries without jobs can turn a dream into a financial and relationship stress test. Do not confuse a lower cost of living with guaranteed income or belonging.','The others may underweight bureaucracy, isolation, and the cost of reversing a move after signing a lease.'],opt:['A temporary move can create energy, perspective, and new opportunity if you structure it as an experiment. You are not required to make a permanent identity decision on day one.','The absence of jobs is a constraint, but it can motivate a focused remote-work and network-building plan before departure.'],risk:['Your key risks are income gap, residency requirements, housing deposits, and a double transition for the relationship. Model a conservative six-month budget in both locations.','A trial period reduces risk if you preserve the ability to return without sunk costs.'],psych:['A shared relocation can strengthen a partnership when both people name their hopes and fears explicitly. Make sure each partner has agency, not just agreement.','Ask whether Portugal represents a pull toward a desired life or a wish to flee a difficult season.']},verdict:{summary:'The council favors a reversible trial, not an immediate permanent move without income.',points:['Build a six-month conservative budget for both countries.','Confirm residency, healthcare, and housing requirements.','Agree on each partner’s non-negotiables.','Test remote income and community before relocating permanently.'],confidence:77,recommendation:'Plan a time-boxed trial only after securing income or a protected financial buffer.',conditions:'Pause if either partner lacks a realistic work, healthcare, or return plan.',experiment:'Spend 4–8 weeks in Portugal while maintaining current income where possible.',stopLoss:'Return or delay the move if income has not stabilized by the agreed checkpoint.',councilMap:[{id:'devil',readiness:30,reason:'Reversal cost'},{id:'opt',readiness:70,reason:'Life experiment'},{id:'risk',readiness:42,reason:'Income gap'},{id:'psych',readiness:68,reason:'Shared values'}]}},
+  investment:{responses:{devil:['“Invest it all” may be an anxiety-management move disguised as conviction. If this money is needed soon, market timing is not the central risk—liquidity is.','The others may overlook the emotional cost of watching a concentrated decision fall just after you make it.'],opt:['A long-term, diversified plan can be more powerful than waiting for perfect certainty. A rules-based approach protects you from reacting to headlines.','You can turn uncertainty into a plan by separating emergency reserves from long-term capital.'],risk:['First establish emergency cash, upcoming obligations, debt costs, and time horizon. Only money with a long horizon belongs in volatile assets.','Phased investing can reduce timing regret while keeping the plan disciplined.'],psych:['The desire to wait may reflect loss aversion, while the desire to invest everything may reflect a wish to end uncertainty. A pre-committed rule can protect you from both.','Decide what level of volatility you can tolerate without abandoning the plan.']},verdict:{summary:'The council favors a rules-based allocation over an all-or-nothing timing decision.',points:['Reserve emergency funds and near-term obligations first.','Match investment level to time horizon and risk tolerance.','Use a pre-committed phased plan if timing anxiety is high.','Avoid treating market headlines as a personal signal.'],confidence:81,recommendation:'Invest only the portion with a long horizon, using a documented allocation plan.',conditions:'Pause if this money is required within the next few years or emergency reserves are incomplete.',experiment:'Write a one-page investment policy before moving any money.',stopLoss:'Do not invest funds needed for emergencies, debt repayment, or known near-term expenses.',councilMap:[{id:'devil',readiness:40,reason:'Liquidity risk'},{id:'opt',readiness:75,reason:'Long-term compounding'},{id:'risk',readiness:55,reason:'Time horizon'},{id:'psych',readiness:70,reason:'Behavioral plan'}]}}
+};
+const state={apiKey:null,mode:'demo',running:false,controller:null,decision:'',context:{},assumptions:[],agentRecords:{},round1:{},round2:{},verdict:null,logCount:0,pendingStart:false,modeChosen:false,assumptionResolver:null,lastFocus:null,activeModal:null};
+const el=id=>document.getElementById(id);
+
+function setStatus(message,type='info'){const box=el('status-message');box.textContent=message;box.className='status-message visible '+type;box.setAttribute('role',type==='error'?'alert':'status');}
+function clearStatus(){const box=el('status-message');box.textContent='';box.className='status-message';}
+function setMode(mode){state.mode=mode;const badge=el('mode-badge');badge.className='mode-badge '+mode;badge.textContent=mode==='live'?'🔒 Live GPT-5.6':'◇ Demo Mode';}
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+function ensureActive(){if(!state.controller||state.controller.signal.aborted)throw new DOMException('Deliberation cancelled','AbortError');}
+function isSensitiveDecision(text){return /suicid|self-harm|kill myself|hurt myself|end my life|end it all|overdos|abuse|domestic violence|medical emergency|legal emergency|immediate danger/i.test(text);}
+function getContext(){return {horizon:el('time-horizon').value,reversibility:el('reversibility').value,downside:el('downside-limit').value.trim()||'Not specified',people:el('people-affected').value.trim()||'Not specified',checkpoint:el('checkpoint-date').value||'Not specified',success:el('success-definition').value.trim()||'Not specified'};}
+function contextText(){return 'Decision context:\n- Horizon: '+state.context.horizon+'\n- Reversibility: '+state.context.reversibility+'\n- Maximum acceptable downside: '+state.context.downside+'\n- People affected: '+state.context.people+'\n- Check-in date: '+state.context.checkpoint+'\n- Success definition: '+state.context.success;}
+function demoKey(){const text=state.decision.toLowerCase();if(/startup|company|founder|client/.test(text))return 'founder';if(/portugal|move|relocat|abroad/.test(text))return 'relocate';if(/invest|index fund|€30/.test(text))return 'investment';return 'career';}
+function demoResponse(id,round){return DEMOS[demoKey()].responses[id][round===1?0:1];}
+function demoVerdict(){return DEMOS[demoKey()].verdict;}
+function defaultRecord(agent,text){const defaults={devil:28,opt:74,risk:46,psych:61};return {readiness:defaults[agent.id],assumption:text.split(/[.!?]/)[0]||'The decision can be tested before it is irreversible.',evidence:'Clarify the missing facts that would change this view.',challenge:'What new evidence would make you revise your position?'};}
+function parseAgentRecord(agent,text){const get=(label)=>{const pattern=label==='READINESS'?'^READINESS(?:\\s*\\([^)]*\\))?\\s*:\\s*(.+)$':'^'+label+'\\s*:\\s*(.+)$';const match=text.match(new RegExp(pattern,'im'));return match?match[1].trim():'';};const readiness=Math.max(0,Math.min(100,Number((get('READINESS').match(/\d+/)||[])[0])));const fallback=defaultRecord(agent,text);return {readiness:Number.isFinite(readiness)&&readiness>0?readiness:fallback.readiness,assumption:get('ASSUMPTION')||fallback.assumption,evidence:get('EVIDENCE')||fallback.evidence,challenge:get('CHALLENGE')||fallback.challenge};}
+function extractCouncilAssumptions(){const seen=new Set();return AGENTS.map(agent=>state.agentRecords[agent.id]?.assumption).filter(Boolean).filter(item=>{const key=item.toLowerCase().replace(/[^a-z0-9]/g,'');if(seen.has(key))return false;seen.add(key);return true;}).slice(0,5);}
+
+function createNode(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
+function renderAgents(){const grid=el('agents-grid');grid.replaceChildren();AGENTS.forEach(agent=>{const panel=createNode('article','agent-panel');panel.id='panel-'+agent.id;panel.style.setProperty('--agent-color',agent.color);const head=createNode('div','panel-head');head.append(createNode('div','agent-avatar',agent.emoji));const title=createNode('div');title.append(createNode('div','agent-name',agent.name),createNode('div','agent-role',agent.role));const status=createNode('div','agent-status');status.append(createNode('div','status-dot'),createNode('span','', 'Waiting'));status.lastChild.id='st-'+agent.id;head.append(title,status);const body=createNode('div','panel-body');const message=createNode('p','agent-msg empty','Waiting for the question...');message.id='msg-'+agent.id;body.append(message);panel.append(head,body);grid.append(panel);});}
+function renderAgentFacts(agent,record){const body=el('msg-'+agent.id).parentElement;body.querySelector('.agent-facts')?.remove();const facts=createNode('div','agent-facts');[['Readiness',record.readiness+'/100'],['Assumption',record.assumption],['Evidence needed',record.evidence],['Challenge',record.challenge]].forEach(([label,value])=>{const fact=createNode('div','agent-fact');fact.append(createNode('strong','',label),createNode('span','',value));facts.append(fact);});body.append(facts);}
+function addRoundLabel(agentId){const message=el('msg-'+agentId);const label=createNode('div','round-label round-two','Round 2: Rebuttal');message.parentElement.append(label);const rebuttal=createNode('p','agent-msg empty','Waiting for rebuttal...');rebuttal.id='msg-'+agentId+'-r2';message.parentElement.append(rebuttal);return rebuttal;}
+function addLog(agent,text,round){const body=el('log-body');const entry=createNode('div','log-entry');const avatar=createNode('div','log-av',agent.emoji);avatar.style.border='1px solid '+agent.color;const content=createNode('div','');content.style.flex='1';const meta=createNode('div','log-meta');const name=createNode('span','log-name',agent.name+(round?' · Round '+round:''));name.style.color=agent.color;meta.append(name,createNode('span','log-time',new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})));content.append(meta,createNode('div','log-text',text));entry.append(avatar,content);body.append(entry);body.scrollTop=body.scrollHeight;state.logCount+=1;el('log-count').textContent=state.logCount+' exchange'+(state.logCount===1?'':'s');}
+function setAgentState(agentId,status,speaking){const panel=el('panel-'+agentId);panel.classList.toggle('speaking',speaking);el('st-'+agentId).textContent=status;}
+async function typeText(node,text){node.classList.remove('empty');node.classList.add('typing');node.textContent='';for(const char of text){ensureActive();node.textContent+=char;await sleep(8);}node.classList.remove('typing');}
+function showModal(id,focusTarget){state.lastFocus=document.activeElement;state.activeModal=el(id);state.activeModal.classList.add('visible');state.activeModal.setAttribute('aria-hidden','false');setTimeout(()=>el(focusTarget)?.focus(),0);}
+function hideModal(id){const modal=el(id);modal.classList.remove('visible');modal.setAttribute('aria-hidden','true');if(state.activeModal===modal)state.activeModal=null;state.lastFocus?.focus?.();}
+function openAssumptionReview(){const list=el('assumption-list');list.replaceChildren();state.assumptions.forEach(assumption=>{const row=createNode('div','assumption-row');const input=document.createElement('input');input.className='key-input';input.value=assumption;input.setAttribute('aria-label','Council assumption');const remove=createNode('button','', 'Remove');remove.type='button';remove.addEventListener('click',()=>row.remove());row.append(input,remove);list.append(row);});showModal('assumption-modal','continue-rebuttal');}
+function waitForAssumptionReview(){return new Promise(resolve=>{state.assumptionResolver=resolve;openAssumptionReview();});}
+function finishAssumptionReview(){state.assumptions=[...el('assumption-list').querySelectorAll('input')].map(input=>input.value.trim()).filter(Boolean);hideModal('assumption-modal');const resolve=state.assumptionResolver;state.assumptionResolver=null;if(resolve)resolve();}
+
+async function fetchWithTimeout(options,timeout=45000){const controller=new AbortController();const stop=()=>controller.abort();state.controller.signal.addEventListener('abort',stop,{once:true});const timer=setTimeout(()=>controller.abort(),timeout);try{return await fetch('https://api.openai.com/v1/chat/completions',{...options,signal:controller.signal});}catch(error){if(state.controller.signal.aborted)throw new DOMException('Deliberation cancelled','AbortError');if(controller.signal.aborted)throw new Error('The request timed out. Check your connection and retry.');throw error;}finally{clearTimeout(timer);state.controller.signal.removeEventListener('abort',stop);}}
+function consumeSSE(buffer,onToken,currentText){const events=buffer.split(/\r?\n\r?\n/);const remainder=events.pop();let text=currentText;let done=false;for(const event of events){for(const line of event.split(/\r?\n/)){if(!line.startsWith('data:'))continue;const data=line.slice(5).trim();if(data==='[DONE]'){done=true;break;}try{const token=JSON.parse(data).choices?.[0]?.delta?.content||'';if(token){text+=token;onToken(token);}}catch{throw new Error('The live response could not be read. Please retry.');}}if(done)break;}return {remainder,text,done};}
+async function streamGPT(system,user,onToken){const response=await fetchWithTimeout({method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+state.apiKey},body:JSON.stringify({model:'gpt-5.6',stream:true,messages:[{role:'system',content:system},{role:'user',content:user}],max_tokens:320,temperature:0.7})});if(!response.ok)throw new Error('Live request failed ('+response.status+'). Please verify your API key and try again.');if(!response.body)throw new Error('This browser does not support response streaming.');const reader=response.body.getReader();const decoder=new TextDecoder();let buffer='';let text='';while(true){const {value,done}=await reader.read();buffer+=decoder.decode(value||new Uint8Array(),{stream:!done});const parsed=consumeSSE(buffer,onToken,text);buffer=parsed.remainder;text=parsed.text;if(parsed.done)return text.trim();if(done)break;}return text.trim();}
+async function getMediator(){const debate=AGENTS.map(agent=>agent.name+' Round 1: '+state.round1[agent.id]+'\n'+agent.name+' Round 2: '+state.round2[agent.id]).join('\n\n');if(state.mode==='demo'){await sleep(700);return demoVerdict();}const system='You are the Mediator. Return only valid JSON with summary, points, confidence, recommendation, conditions, experiment, stopLoss, and alternatives. alternatives must be an array of exactly three objects with title, tradeoff, and recommended boolean, covering act now, wait/test, and decline/maintain status quo. Be honest about uncertainty. Do not give legal, medical, financial, or emergency advice. confidence estimates agent agreement, not objective truth.';const user='Decision: "'+state.decision+'"\n\n'+contextText()+'\n\nCorrected assumptions:\n'+state.assumptions.map(item=>'- '+item).join('\n')+'\n\nDebate:\n'+debate;const response=await fetchWithTimeout({method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+state.apiKey},body:JSON.stringify({model:'gpt-5.6',messages:[{role:'system',content:system},{role:'user',content:user}],max_tokens:800,temperature:0.35,response_format:{type:'json_object'}})});if(!response.ok)throw new Error('Mediator request failed ('+response.status+'). Please retry.');let verdict;try{const data=await response.json();verdict=JSON.parse(data.choices?.[0]?.message?.content||'{}');}catch{throw new Error('The mediator returned an unreadable verdict. Please retry.');}if(!verdict.summary||!verdict.recommendation||!Array.isArray(verdict.points))throw new Error('Mediator returned an incomplete verdict.');return verdict;}
+function fallbackAlternatives(){return [{title:'Act now',tradeoff:'Commit immediately and accept the current uncertainty.',recommended:false},{title:'Run a bounded test',tradeoff:'Gather evidence before making the irreversible move.',recommended:true},{title:'Maintain the status quo',tradeoff:'Preserve stability while accepting the opportunity cost.',recommended:false}];}
+function councilAgreement(){const values=AGENTS.map(agent=>state.agentRecords[agent.id]?.readiness).filter(Number.isFinite);if(values.length<2)return 0;const mean=values.reduce((sum,value)=>sum+value,0)/values.length;const variance=values.reduce((sum,value)=>sum+(value-mean)**2,0)/values.length;return Math.max(0,Math.min(100,Math.round(100-Math.sqrt(variance)*2)));}
+function renderVerdict(verdict){state.verdict=verdict;el('verdict-summary').textContent=verdict.summary;const list=el('verdict-list');list.replaceChildren();verdict.points.slice(0,5).forEach(point=>{const item=createNode('li','verdict-item');item.append(createNode('span','verdict-arrow','→'),createNode('span','',point));list.append(item);});const recommendation=el('rec-box');recommendation.replaceChildren();if(verdict.recommendation)recommendation.append(createNode('div','rec-box','→ '+verdict.recommendation));const confidence=councilAgreement();el('conf-pct').textContent=confidence+'%';el('confidence-note').textContent='Council confidence is calculated from how closely the agents’ stated readiness scores align, not certainty about your future.';el('verdict-conditions').textContent=verdict.conditions?'What would change this: '+verdict.conditions:'';const brief=el('brief-grid');brief.replaceChildren();[['Smallest reversible test',verdict.experiment||'Define a small test that produces new evidence before committing.'],['Stop-loss',verdict.stopLoss||'Set a date and a condition that tells you when to pause or reverse.']].forEach(([title,text])=>{const card=createNode('article','brief-card');card.append(createNode('h3','',title),createNode('p','',text));brief.append(card);});const map=el('council-map');map.replaceChildren();const head=createNode('div','map-head');head.append(createNode('h3','', 'Council readiness map'),createNode('span','', 'Stated readiness to proceed'));map.append(head);AGENTS.forEach(agent=>{const record=state.agentRecords[agent.id]||defaultRecord(agent,state.round1[agent.id]||'');const row=createNode('div','map-row');const label=createNode('span','',agent.name);const track=createNode('div','map-track');const fill=createNode('div','map-fill');fill.style.width=record.readiness+'%';fill.style.background=agent.color;track.append(fill);row.append(label,track,createNode('span','map-value',record.readiness+'%'));row.title=record.evidence;map.append(row);});const paths=el('path-options');paths.replaceChildren();(Array.isArray(verdict.alternatives)&&verdict.alternatives.length===3?verdict.alternatives:fallbackAlternatives()).forEach(path=>{const card=createNode('article','path-card'+(path.recommended?' recommended':''));card.append(createNode('h3','',path.title),createNode('p','',path.tradeoff));paths.append(card);});el('mediator-wrap').classList.add('visible');setTimeout(()=>{el('conf-fill').style.width=confidence+'%';},100);el('download-transcript').hidden=false;el('calendar-checkpoint').hidden=false;}
+function resetUI(){renderAgents();state.logCount=0;el('log-body').replaceChildren();el('log-count').textContent='0 exchanges';el('conf-fill').style.width='0';el('download-transcript').hidden=true;el('calendar-checkpoint').hidden=true;el('retry-live').hidden=true;el('mediator-wrap').classList.remove('visible');el('debate-section').classList.add('visible');el('debate-log').classList.add('visible');el('progress-bar').classList.add('visible');}
+function setButton(running){const button=el('deliberate-btn');button.disabled=false;button.textContent=running?'Cancel deliberation':'Deliberate Again';}
+function openModal(){showModal('key-modal','api-key-input');}
+function closeModal(){hideModal('key-modal');}
+function finishRun(){state.running=false;state.controller=null;setButton(false);el('progress-bar').classList.remove('visible');}
+
+async function runAgentRound(agent,round){ensureActive();const target=round===1?el('msg-'+agent.id):addRoundLabel(agent.id);setAgentState(agent.id,round===1?'Thinking…':'Rebutting…',true);target.classList.remove('empty');target.classList.add('typing');target.textContent='';let text='';if(state.mode==='demo'){text=demoResponse(agent.id,round);await typeText(target,text);}else{const prior=AGENTS.filter(other=>other.id!==agent.id).map(other=>other.name+': '+state.round1[other.id]).join('\n');const format=' For Round 1, respond in exactly five labelled lines: VIEW, READINESS (0-100), ASSUMPTION, EVIDENCE, CHALLENGE. Keep each value concise. For Round 2, write 1-2 direct sentences.';const prompt=round===1?'Decision: "'+state.decision+'"\n\n'+contextText()+'\n\nGive your independent first-round perspective.'+format:'Decision: "'+state.decision+'"\n\n'+contextText()+'\n\nCorrected assumptions:\n'+state.assumptions.map(item=>'- '+item).join('\n')+'\n\nOther agents have said:\n'+prior+'\n\nNow give your rebuttal. What did the others miss or get wrong?';text=await streamGPT(agent.sys,prompt,token=>{target.textContent+=token;});target.classList.remove('typing');}ensureActive();if(!text)throw new Error(agent.name+' returned no response.');if(round===1){state.round1[agent.id]=text;state.agentRecords[agent.id]=parseAgentRecord(agent,text);renderAgentFacts(agent,state.agentRecords[agent.id]);}else state.round2[agent.id]=text;addLog(agent,text,round);setAgentState(agent.id,'Done',false);}
+async function deliberate(){if(state.running)return;state.decision=el('decision-input').value.trim();state.context=getContext();if(!state.decision){el('decision-input').focus();setStatus('Describe the decision you want the council to consider.','error');return;}if(isSensitiveDecision(state.decision)){setStatus('This sounds urgent or high-stakes. The AI Diplomat cannot safely handle crisis, emergency, or abuse decisions. Please contact local emergency, crisis, medical, legal, or support services.','error');return;}if(!state.apiKey&&state.mode!=='demo'){openModal();return;}state.running=true;state.controller=new AbortController();state.round1={};state.round2={};state.agentRecords={};state.assumptions=[];clearStatus();resetUI();setButton(true);el('debate-section').scrollIntoView({behavior:'smooth',block:'start'});try{for(let index=0;index<AGENTS.length;index+=1){el('progress-fill').style.width=(index/10*100)+'%';await runAgentRound(AGENTS[index],1);}state.assumptions=extractCouncilAssumptions();setStatus('Round 1 is complete. Check the council’s stated assumptions before the rebuttal.','info');await waitForAssumptionReview();ensureActive();clearStatus();for(let index=0;index<AGENTS.length;index+=1){el('progress-fill').style.width=((index+5)/10*100)+'%';await runAgentRound(AGENTS[index],2);}el('progress-fill').style.width='90%';const verdict=await getMediator();renderVerdict(verdict);addLog(MED,verdict.summary,3);el('progress-fill').style.width='100%';el('mediator-wrap').scrollIntoView({behavior:'smooth',block:'start'});}catch(error){if(error.name==='AbortError')setStatus('The deliberation was cancelled. You can start again whenever you are ready.','info');else{setStatus(error.message+' No demo response was substituted, so you always know whether a result is live.','error');el('retry-live').hidden=state.mode!=='live';}}finally{finishRun();}}
+function downloadTranscript(){if(!state.verdict)return;const stamp=new Date().toLocaleString();const sections=['THE AI DIPLOMAT DECISION BRIEF','Decision: '+state.decision,'','DECISION CONTEXT',contextText(),'','CORRECTED ASSUMPTIONS',...state.assumptions.map(item=>'- '+item),''];AGENTS.forEach(agent=>{const record=state.agentRecords[agent.id]||{};sections.push(agent.name+' — '+agent.role,'Readiness: '+(record.readiness??'—')+'/100','Assumption: '+(record.assumption||'—'),'Evidence needed: '+(record.evidence||'—'),'Round 1: '+(state.round1[agent.id]||'—'),'Round 2: '+(state.round2[agent.id]||'—'),'');});sections.push('THE MEDIATOR','Summary: '+state.verdict.summary,'Insights:\n'+state.verdict.points.map(point=>'- '+point).join('\n'),'Recommendation: '+state.verdict.recommendation,'Council agreement: '+councilAgreement()+'%','What would change this: '+(state.verdict.conditions||'—'),'Smallest reversible test: '+(state.verdict.experiment||'—'),'Stop-loss: '+(state.verdict.stopLoss||'—'),'','Generated: '+stamp);const url=URL.createObjectURL(new Blob([sections.join('\n')],{type:'text/plain;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='ai-diplomat-decision-brief-'+new Date().toISOString().slice(0,10)+'.txt';document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);}
+function downloadCheckpoint(){const date=state.context.checkpoint!=='Not specified'?new Date(state.context.checkpoint+'T09:00:00'):new Date(Date.now()+30*86400000);const end=new Date(date.getTime()+30*60000);const fmt=value=>value.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');const description=('Review the AI Diplomat decision: '+state.decision+'\n\nExperiment: '+(state.verdict?.experiment||'—')+'\nStop-loss: '+(state.verdict?.stopLoss||'—')).replace(/\n/g,'\\n');const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//The AI Diplomat//EN','BEGIN:VEVENT','UID:'+Date.now()+'@ai-diplomat','DTSTAMP:'+fmt(new Date()),'DTSTART:'+fmt(date),'DTEND:'+fmt(end),'SUMMARY:AI Diplomat decision check-in','DESCRIPTION:'+description,'END:VEVENT','END:VCALENDAR'].join('\r\n');const url=URL.createObjectURL(new Blob([ics],{type:'text/calendar;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='ai-diplomat-check-in.ics';document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);}
+
+document.querySelectorAll('.scenario-chip').forEach(button=>button.addEventListener('click',()=>{el('decision-input').value=SCENARIOS[button.textContent.trim()]||'';}));
+el('deliberate-btn').addEventListener('click',()=>{if(state.running){state.controller?.abort();if(state.assumptionResolver){const resolver=state.assumptionResolver;state.assumptionResolver=null;hideModal('assumption-modal');resolver();}return;}if(!state.modeChosen&&!state.pendingStart){state.pendingStart=true;openModal();}else deliberate();});
+el('use-demo').addEventListener('click',()=>{state.apiKey=null;state.modeChosen=true;setMode('demo');closeModal();state.pendingStart=false;deliberate();});
+el('use-live').addEventListener('click',()=>{const key=el('api-key-input').value.trim();if(!key){setStatus('Enter an API key or choose Demo Mode.','error');return;}state.apiKey=key;state.modeChosen=true;setMode('live');closeModal();state.pendingStart=false;deliberate();});
+el('close-key-modal').addEventListener('click',()=>{state.pendingStart=false;closeModal();});
+el('retry-live').addEventListener('click',()=>deliberate());
+el('download-transcript').addEventListener('click',downloadTranscript);
+el('calendar-checkpoint').addEventListener('click',downloadCheckpoint);
+el('continue-rebuttal').addEventListener('click',finishAssumptionReview);
+el('cancel-assumption').addEventListener('click',()=>{state.controller?.abort();const resolver=state.assumptionResolver;state.assumptionResolver=null;hideModal('assumption-modal');resolver?.();});
+document.addEventListener('keydown',event=>{if(!state.activeModal)return;if(event.key==='Escape'){event.preventDefault();if(state.activeModal.id==='key-modal'){state.pendingStart=false;closeModal();}else el('cancel-assumption').click();return;}if(event.key!=='Tab')return;const focusable=[...state.activeModal.querySelectorAll('button,input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(node=>!node.disabled);if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}});
+document.querySelector('[data-theme-toggle]').addEventListener('click',event=>{const root=document.documentElement;const dark=root.getAttribute('data-theme')!=='light';root.setAttribute('data-theme',dark?'light':'dark');event.currentTarget.setAttribute('aria-pressed',String(!dark));event.currentTarget.setAttribute('aria-label',dark?'Switch to dark theme':'Switch to light theme');});
+setMode('demo');
+</script>
+</body>
+</html>
