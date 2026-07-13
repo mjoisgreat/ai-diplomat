@@ -12,7 +12,7 @@ The AI Diplomat is a structured decision-rehearsal room for difficult life choic
 
 ## Run locally
 
-Open `the-ai-diplomat.html` in a modern browser. No build step is required.
+Open `index.html` in a modern browser. No build step is required.
 
 Use Demo Mode to run without an API key. Live Mode uses GPT-5.6 through the Chat Completions API and stores the user-provided key only in page memory.
 
