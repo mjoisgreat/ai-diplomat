@@ -82,11 +82,6 @@ function sanitizeRequest(input) {
 
   if (tokenLimit) request.max_completion_tokens = tokenLimit;
 
-  if (typeof input.temperature === 'number' && Number.isFinite(input.temperature)
-      && input.temperature >= 0 && input.temperature <= 2) {
-    request.temperature = input.temperature;
-  }
-
   if (isRecord(input.response_format) && input.response_format.type === 'json_object') {
     request.response_format = { type: 'json_object' };
   }
