@@ -1,4 +1,4 @@
-name: ai_diplomat
+name: asembi
 description: A generative multi-agent decision review built for Flutter web.
 publish_to: "none"
 version: 1.0.0+1

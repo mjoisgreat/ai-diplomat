@@ -8,7 +8,7 @@ The controlled protocol below evaluates **Founder Runway**, the app’s fully gu
 
 ## Research question
 
-When given the same founder decision packet, does an AI Diplomat Founder Decision Brief make cash constraints, customer evidence, uncertainty, and a reversible next step more explicit than one careful GPT-5.6 answer?
+When given the same founder decision packet, does an Asembi Founder Decision Brief make cash constraints, customer evidence, uncertainty, and a reversible next step more explicit than one careful GPT-5.6 answer?
 
 The outcome is **decision-support quality**, not business success, factual accuracy beyond the supplied packet, or clinical/financial advice quality.
 
@@ -39,7 +39,7 @@ Decision check-in: [value]
 Clarification supplied after first reflection: [value]
 ```
 
-For the AI Diplomat condition, enter the same values in the app and include the same clarification during its assumption-correction checkpoint. This avoids giving the council information that the single-model condition never receives.
+For the Asembi condition, enter the same values in the app and include the same clarification during its assumption-correction checkpoint. This avoids giving the council information that the single-model condition never receives.
 
 ### Run settings and recordkeeping
 

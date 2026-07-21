@@ -1,8 +1,8 @@
-# The AI Diplomat
+# Asembi
 
 **A private second hearing for consequential decisions.**
 
-The AI Diplomat is a Flutter web app that turns a hard choice into a short, visible decision process: four distinct perspectives examine the case, the user corrects the council’s assumptions, the agents challenge one another, and a Mediator produces one conditional decision brief.
+Asembi is a Flutter web app that turns a hard choice into a short, visible decision process: four distinct perspectives examine the case, the user corrects the council’s assumptions, the agents challenge one another, and a Mediator produces one conditional decision brief.
 
 It is not a prediction engine or an authority on personal choices. It is a way to make unknowns, evidence, trade-offs, and a reversible next move easier to see.
 
@@ -80,7 +80,7 @@ The key stays only in Vercel’s server environment. Avoid entering personal ide
 
 ## Trust boundaries
 
-- The AI Diplomat is a planning aid, not medical, legal, financial, tax, investment, emergency, crisis, or professional relationship advice.
+- Asembi is a planning aid, not medical, legal, financial, tax, investment, emergency, crisis, or professional relationship advice.
 - It does not verify salary, offer, tax, visa, housing, funding, market, customer, school, or employer claims. Treat material details as user-provided until independently verified.
 - Some high-stakes topics are redirected to qualified support rather than sent into the council flow.
 - Example mode is illustrative only. Live mode sends the decision record to the app relay and OpenAI to produce the streamed hearing.

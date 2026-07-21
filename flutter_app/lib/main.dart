@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:web/web.dart' as web;
 
 void main() {
-  runApp(const DiplomatApp());
+  runApp(const AsembiApp());
 }
 
 const _ink = Color(0xFF101113);
@@ -272,15 +272,14 @@ class DecisionBrief {
   }
 }
 
-class DiplomatApp extends StatefulWidget {
-  const DiplomatApp({super.key});
+class AsembiApp extends StatefulWidget {
+  const AsembiApp({super.key});
 
   @override
-  State<DiplomatApp> createState() => _DiplomatAppState();
+  State<AsembiApp> createState() => _AsembiAppState();
 }
 
-class _DiplomatAppState extends State<DiplomatApp>
-    with TickerProviderStateMixin {
+class _AsembiAppState extends State<AsembiApp> with TickerProviderStateMixin {
   final _decisionController = TextEditingController();
   final _http = http.Client();
   final _reviewScrollController = ScrollController();
@@ -335,7 +334,7 @@ class _DiplomatAppState extends State<DiplomatApp>
     return MaterialApp(
       navigatorKey: _navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'The AI Diplomat',
+      title: 'Asembi',
       theme: ThemeData(
         useMaterial3: true,
         brightness: _dark ? Brightness.dark : Brightness.light,
@@ -343,7 +342,7 @@ class _DiplomatAppState extends State<DiplomatApp>
         colorScheme: scheme,
         fontFamily: 'Arial',
       ),
-      home: _DiplomatSurface(
+      home: _AsembiSurface(
         dark: _dark,
         stage: _stage,
         child: Builder(builder: (context) => _buildPage(context, scheme)),
@@ -419,12 +418,12 @@ class _DiplomatAppState extends State<DiplomatApp>
                   ),
                 ),
                 child: CustomPaint(
-                  painter: _DiplomatMarkPainter(color: scheme.primary),
+                  painter: _AsembiMarkPainter(color: scheme.primary),
                 ),
               ),
               const SizedBox(width: 9),
               Text(
-                'AI DIPLOMAT',
+                'ASEMBI',
                 style: TextStyle(
                   color: scheme.onSurface,
                   fontSize: 12,
@@ -2002,7 +2001,7 @@ class _DiplomatAppState extends State<DiplomatApp>
     final url = web.URL.createObjectURL(blob);
     final anchor = web.HTMLAnchorElement()
       ..href = url
-      ..download = 'ai-diplomat-hearing.txt';
+      ..download = 'asembi-hearing.txt';
     web.document.body?.append(anchor);
     anchor.click();
     Timer(const Duration(milliseconds: 300), () {
@@ -2015,7 +2014,7 @@ class _DiplomatAppState extends State<DiplomatApp>
     final brief = _brief;
     if (brief == null) return '';
     return [
-      'THE AI DIPLOMAT — DECISION BRIEF',
+      'ASEMBI — DECISION BRIEF',
       'Template: ${_selectedTemplate.label}',
       'Decision: $_caseDecision',
       '',
@@ -2170,8 +2169,8 @@ class _DiplomatAppState extends State<DiplomatApp>
   };
 }
 
-class _DiplomatSurface extends StatelessWidget {
-  const _DiplomatSurface({
+class _AsembiSurface extends StatelessWidget {
+  const _AsembiSurface({
     required this.dark,
     required this.stage,
     required this.child,
@@ -2679,8 +2678,8 @@ class _StatusLine extends StatelessWidget {
   }
 }
 
-class _DiplomatMarkPainter extends CustomPainter {
-  const _DiplomatMarkPainter({required this.color});
+class _AsembiMarkPainter extends CustomPainter {
+  const _AsembiMarkPainter({required this.color});
 
   final Color color;
 
@@ -2718,7 +2717,7 @@ class _DiplomatMarkPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _DiplomatMarkPainter oldDelegate) =>
+  bool shouldRepaint(covariant _AsembiMarkPainter oldDelegate) =>
       oldDelegate.color != color;
 }
 
