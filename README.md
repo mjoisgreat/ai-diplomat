@@ -2,6 +2,10 @@
 
 **A private second hearing for consequential decisions.**
 
+<p align="center">
+  <img src="flutter_app/assets/asembi-logo.png" alt="Asembi logo" width="180" />
+</p>
+
 Asembi is a Flutter web app that turns a hard choice into a short, visible decision process: four distinct perspectives examine the case, the user corrects the council’s assumptions, the agents challenge one another, and a Mediator produces one conditional decision brief.
 
 It is not a prediction engine or an authority on personal choices. It is a way to make unknowns, evidence, trade-offs, and a reversible next move easier to see.

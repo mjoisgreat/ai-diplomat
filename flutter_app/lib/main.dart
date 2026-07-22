@@ -409,16 +409,31 @@ class _AsembiAppState extends State<AsembiApp> with TickerProviderStateMixin {
           child: Row(
             children: [
               Container(
-                width: 28,
-                height: 28,
+                width: 32,
+                height: 32,
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: scheme.primary.withValues(alpha: .78),
                   ),
                 ),
-                child: CustomPaint(
-                  painter: _AsembiMarkPainter(color: scheme.primary),
+                child: OverflowBox(
+                  maxWidth: 58,
+                  maxHeight: 58,
+                  alignment: Alignment.topCenter,
+                  child: Transform.translate(
+                    offset: const Offset(0, -6),
+                    child: Image.asset(
+                      'assets/asembi-logo.png',
+                      width: 58,
+                      height: 58,
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
+                      semanticLabel: 'Asembi logo',
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 9),
@@ -2676,49 +2691,6 @@ class _StatusLine extends StatelessWidget {
       ),
     );
   }
-}
-
-class _AsembiMarkPainter extends CustomPainter {
-  const _AsembiMarkPainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.1;
-    final center = Offset(size.width / 2, size.height / 2);
-    canvas.drawCircle(center, 8.6, paint);
-    final fill = Paint()..color = color;
-    for (final point in [
-      Offset(center.dx, center.dy - 4.3),
-      Offset(center.dx - 4.2, center.dy + 3.3),
-      Offset(center.dx + 4.2, center.dy + 3.3),
-    ]) {
-      canvas.drawCircle(point, 1.65, fill);
-    }
-    canvas.drawLine(
-      Offset(center.dx, center.dy - 2.7),
-      Offset(center.dx - 3.2, center.dy + 1.8),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx, center.dy - 2.7),
-      Offset(center.dx + 3.2, center.dy + 1.8),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(center.dx - 2.7, center.dy + 3.3),
-      Offset(center.dx + 2.7, center.dy + 3.3),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _AsembiMarkPainter oldDelegate) =>
-      oldDelegate.color != color;
 }
 
 class _AmbientFieldPainter extends CustomPainter {
