@@ -50,9 +50,35 @@ It does not decide a life for anyone. It helps make trade-offs, unknowns, eviden
 
 ## Built with Codex and GPT-5.6
 
-**GPT-5.6** is the live reasoning engine. Each council member and the Mediator call `gpt-5.6` through a server-side Vercel relay. Responses arrive through Server-Sent Events, so each agent appears as it is generated instead of all at once.
+### Where Codex accelerated the workflow
 
-**Codex** was used to evolve the prototype into the current Flutter web experience: the live streaming flow, two-round council, editable assumption checkpoint, structured Decision Brief, transcript export, visual system, and deployment workflow.
+Codex was the main build partner for turning the early prototype into the shipped app. It accelerated:
+
+- **Product design:** narrowing a broad “multi-agent chat” into a clear second-hearing flow: independent views → assumption correction → challenge round → Decision Brief.
+- **Engineering:** moving the app into Flutter web, implementing streamed Server-Sent Events, and making one agent finish before the next begins.
+- **Trust design:** replacing browser API-key entry with a Vercel relay, keeping the key server-side, and making Example Mode work without any key.
+- **Decision quality:** adding the editable assumption checkpoint so users can correct the council before the final recommendation.
+- **Polish and delivery:** refining the centered interface, transcript export, brand system, Vercel deployment, README, and demo materials.
+
+### Key decisions behind Asembi
+
+| Decision | Why it matters |
+| --- | --- |
+| Use four fixed roles instead of one generic assistant | Each role has a clear job: challenge the case, find opportunity, map risk, or surface human pressure. |
+| Put the user between the two rounds | The user can correct assumptions before the agents respond to one another. |
+| Give a conditional brief instead of a confidence score | The result names what could change the recommendation, the next evidence action, and a guardrail. |
+| Use a server-side relay | Visitors never enter an API key in the browser; the relay also keeps the live model fixed to GPT-5.6. |
+
+### How GPT-5.6 is used
+
+GPT-5.6 is the live reasoning engine, not a decorative feature. It is used to:
+
+1. Generate the independent first-hearing response for each council role.
+2. Generate each role’s challenge-round response after it receives the other views and corrected assumptions.
+3. Create the structured Mediator Decision Brief.
+4. Optionally extract an editable context draft from facts explicitly provided by the user.
+
+Every live request is pinned to `gpt-5.6` and streamed through the Vercel relay with Server-Sent Events, so the interface shows the council thinking in real time.
 
 | OpenAI Build Week 2026 | Details |
 | --- | --- |
