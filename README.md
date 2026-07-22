@@ -6,6 +6,29 @@ Asembi is a Flutter web app that turns a hard choice into a short, visible decis
 
 It is not a prediction engine or an authority on personal choices. It is a way to make unknowns, evidence, trade-offs, and a reversible next move easier to see.
 
+## Try Asembi
+
+- **Live demo:** [ai-diplomat.vercel.app](https://ai-diplomat.vercel.app/)
+- **Fast judge path:** Open the demo, enter any decision, select **Use example**, and follow the council through the first hearing, assumption check, challenge round, and Decision Brief. No API key is needed.
+- **Live path:** Select **Use Live GPT-5.6** to run a real streamed council. The app never asks visitors to enter an API key.
+
+## OpenAI Build Week 2026
+
+**Track:** Apps for Your Life
+
+### How Codex and GPT-5.6 are used
+
+Codex was used to turn the original prototype into the current Flutter web experience, refine the decision flow, implement streaming, build the two-round council, create the structured Decision Brief, improve the visual system, and prepare deployment and submission materials.
+
+GPT-5.6 is the live reasoning engine. Every council member and the Mediator call `gpt-5.6` through the server-side relay. Responses stream into the interface as they arrive; the second round receives the first-round record and the user-corrected assumptions before the Mediator creates the final brief.
+
+### Submission details
+
+- **Public demo video:** [Watch the Asembi demo on YouTube](https://youtu.be/yUob9fEebEE)
+- **Primary Codex Session ID:** `019f5c8a-25ec-7940-9cdf-b37d3ea4f83b`
+
+Before submitting, type `/status` in the primary Codex thread where most of Asembi was built. Copy the Session ID shown there and replace the placeholder above. Use that same ID in the Devpost submission form.
+
 ## The experience
 
 1. **Start with one centered question.** Choose an Open, Founder, Career, or Move template from a model-style picker. Open is the default.
@@ -85,11 +108,12 @@ The key stays only in Vercel’s server environment. Avoid entering personal ide
 - Some high-stakes topics are redirected to qualified support rather than sent into the council flow.
 - Example mode is illustrative only. Live mode sends the decision record to the app relay and OpenAI to produce the streamed hearing.
 
-## Before a submission or public launch
+## Submission and public-launch checklist
 
 The strongest evidence for this project will be real, measured use:
 
+- Add the public YouTube demo URL and primary Codex Session ID in the [submission details](#submission-details) section above.
+- Publish a public YouTube video that is three minutes or shorter and includes an English voiceover explaining Asembi, Codex, and GPT-5.6.
 - Run 3–5 usability sessions with people making a live decision.
 - Compare the same cases with a single-model answer and publish the honest results.
-- Record a 60–90 second demo showing a decision become a bounded evidence test.
 - Add durable authentication, distributed rate limits, budget controls, monitoring, and a privacy policy before broad access.
