@@ -8,7 +8,7 @@ It is not a prediction engine or an authority on personal choices. It is a way t
 
 ## Try Asembi
 
-- **Live demo:** [ai-diplomat.vercel.app](https://ai-diplomat.vercel.app/)
+- **Live demo:** [asembi.vercel.app](https://asembi.vercel.app/)
 - **Fast judge path:** Open the demo, enter any decision, select **Use example**, and follow the council through the first hearing, assumption check, challenge round, and Decision Brief. No API key is needed.
 - **Live path:** Select **Use Live GPT-5.6** to run a real streamed council. The app never asks visitors to enter an API key.
 
