@@ -50,15 +50,16 @@ Before submitting, type `/status` in the primary Codex thread where most of Asem
 
 ~~~mermaid
 flowchart LR
-  U[User decision + optional context] --> F[Flutter web experience]
-  F --> A[Four streamed council hearings]
-  A --> C[Editable assumption check]
-  C --> X[Cross-examination]
-  X --> M[Structured Mediator brief]
-  M --> E[Copy or full transcript export]
-  F --> R[/api/deliberate]
-  R --> O[OpenAI Chat Completions — gpt-5.6 SSE]
-  O --> R --> F
+  U["User decision + optional context"] --> F["Flutter web experience"]
+  F --> A["Four streamed council hearings"]
+  A --> C["Editable assumption check"]
+  C --> X["Cross-examination"]
+  X --> M["Structured Mediator brief"]
+  M --> E["Copy or full transcript export"]
+  F --> R["/api/deliberate"]
+  R --> O["OpenAI Chat Completions — GPT-5.6 SSE"]
+  O --> R
+  R --> F
 ~~~
 
 The Flutter source lives in [flutter_app](flutter_app). The generated production bundle in [public](public) is served by Vercel, while [api/deliberate.js](api/deliberate.js) is the server-side streaming relay.
