@@ -1,86 +1,109 @@
-# Asembi
-
-**A private second hearing for consequential decisions.**
-
 <p align="center">
   <img src="flutter_app/assets/asembi-logo.png" alt="Asembi logo" width="180" />
 </p>
 
-Asembi is a Flutter web app that turns a hard choice into a short, visible decision process: four distinct perspectives examine the case, the user corrects the council’s assumptions, the agents challenge one another, and a Mediator produces one conditional decision brief.
+<h1 align="center">Asembi</h1>
 
-It is not a prediction engine or an authority on personal choices. It is a way to make unknowns, evidence, trade-offs, and a reversible next move easier to see.
+<p align="center">
+  <strong>A private second hearing for hard life decisions.</strong>
+</p>
 
-## Try Asembi
+<p align="center">
+  <a href="https://asembi.vercel.app/">Try the live app</a>
+  ·
+  <a href="https://youtu.be/yUob9fEebEE">Watch the demo</a>
+  ·
+  <a href="#how-it-works">How it works</a>
+</p>
 
-- **Live demo:** [asembi.vercel.app](https://asembi.vercel.app/)
-- **Fast judge path:** Open the demo, enter any decision, select **Use example**, and follow the council through the first hearing, assumption check, challenge round, and Decision Brief. No API key is needed.
-- **Live path:** Select **Use Live GPT-5.6** to run a real streamed council. The app never asks visitors to enter an API key.
+Asembi helps a person slow down a difficult choice before making it permanent. Instead of giving one fast answer, it brings together four independent GPT-5.6 perspectives, lets the user correct the assumptions behind them, runs a challenge round, and produces a clear Decision Brief.
 
-## OpenAI Build Week 2026
+It does not decide a life for anyone. It helps make trade-offs, unknowns, evidence, and the next safest move easier to see.
 
-**Track:** Apps for Your Life
+## Watch the demo
 
-### How Codex and GPT-5.6 are used
+<p align="center">
+  <a href="https://youtu.be/yUob9fEebEE">
+    <img src="https://img.youtube.com/vi/yUob9fEebEE/hqdefault.jpg" alt="Watch the Asembi demo on YouTube" width="720" />
+  </a>
+</p>
 
-Codex was used to turn the original prototype into the current Flutter web experience, refine the decision flow, implement streaming, build the two-round council, create the structured Decision Brief, improve the visual system, and prepare deployment and submission materials.
+<p align="center">
+  <strong>▶ <a href="https://youtu.be/yUob9fEebEE">Watch Asembi in action on YouTube</a></strong>
+</p>
 
-GPT-5.6 is the live reasoning engine. Every council member and the Mediator call `gpt-5.6` through the server-side relay. Responses stream into the interface as they arrive; the second round receives the first-round record and the user-corrected assumptions before the Mediator creates the final brief.
+## Why Asembi
 
-### Submission details
+- **Independent views, not one generic reply.** Countercase, Opportunity, Risk, and Human Factor each have a distinct job.
+- **Assumptions are visible and editable.** The user can correct the record before the agents challenge one another.
+- **The output is practical.** The final brief includes a recommendation, what could change it, a small evidence action, a guardrail, and a decision rule.
+- **No key required to explore.** Example Mode is a complete, local walkthrough that judges can try immediately.
 
-- **Public demo video:** [Watch the Asembi demo on YouTube](https://youtu.be/yUob9fEebEE)
-- **Primary Codex Session ID:** `019f5c8a-25ec-7940-9cdf-b37d3ea4f83b`
+## How it works
 
-Before submitting, type `/status` in the primary Codex thread where most of Asembi was built. Copy the Session ID shown there and replace the placeholder above. Use that same ID in the Devpost submission form.
+1. **Frame the decision.** Choose an Open, Founder, Career, or Move template and describe the choice.
+2. **Add only useful context.** Leave context off, add details manually, or use editable Auto-fill in Live mode.
+3. **Read the first hearing.** Four perspectives stream their independent views one at a time.
+4. **Correct the assumptions.** Keep, edit, or remove the assumptions that matter before continuing.
+5. **Run the challenge round.** Each perspective responds to what the others missed.
+6. **Act on the Decision Brief.** Copy or download the complete record, then use the evidence action and guardrail to guide the next move.
 
-## The experience
+## Built with Codex and GPT-5.6
 
-1. **Start with one centered question.** Choose an Open, Founder, Career, or Move template from a model-style picker. Open is the default.
-2. **Choose your context level.** Leave it Off, use editable Auto-fill that extracts only facts from the user’s text, or add details manually.
-3. **Watch the council convene.** Countercase, Opportunity, Risk, and Human factor stream their independent first hearing one at a time.
-4. **Correct the record.** The user can keep, edit, or remove the assumptions that matter before the challenge round.
-5. **Receive a Decision Brief.** The Mediator synthesizes the debate into a recommendation, evidence action, guardrail, and if/then decision rule.
-6. **Keep the decision loop.** Copy the brief or download the complete council transcript with both rounds and a timestamp.
+**GPT-5.6** is the live reasoning engine. Each council member and the Mediator call `gpt-5.6` through a server-side Vercel relay. Responses arrive through Server-Sent Events, so each agent appears as it is generated instead of all at once.
 
-## Why this is not just a multi-agent chat
+**Codex** was used to evolve the prototype into the current Flutter web experience: the live streaming flow, two-round council, editable assumption checkpoint, structured Decision Brief, transcript export, visual system, and deployment workflow.
 
-- **Visible reasoning roles:** every perspective has a different job, not a different color or personality.
-- **User correction before synthesis:** assumptions are editable before cross-examination, not buried in a final answer.
-- **Generative UI with a purpose:** streamed turns produce Claim, Assumption, and Evidence-needed signals that become the correction gate.
-- **Conditional rather than falsely certain:** the brief gives the evidence that would change its recommendation and a measurable decision rule instead of a made-up confidence percentage.
-- **Private by default:** Example mode is a fully local scripted walkthrough. Live mode uses a server relay, so no API key is entered, stored, or sent from the browser.
+| OpenAI Build Week 2026 | Details |
+| --- | --- |
+| Track | Apps for Your Life |
+| Demo video | [Watch on YouTube](https://youtu.be/yUob9fEebEE) |
+| Primary Codex Session ID | `019f5c8a-25ec-7940-9cdf-b37d3ea4f83b` |
 
 ## Architecture
 
 ~~~mermaid
 flowchart LR
-  U["User decision + optional context"] --> F["Flutter web experience"]
-  F --> A["Four streamed council hearings"]
-  A --> C["Editable assumption check"]
-  C --> X["Cross-examination"]
+  U["Decision and optional context"] --> F["Flutter web app"]
+  F --> H["Four streamed first-hearing turns"]
+  H --> A["Editable assumption check"]
+  A --> X["Cross-examination"]
   X --> M["Structured Mediator brief"]
-  M --> E["Copy or full transcript export"]
-  F --> R["/api/deliberate"]
-  R --> O["OpenAI Chat Completions — GPT-5.6 SSE"]
+  M --> E["Copy or transcript export"]
+  F --> R["Vercel relay: /api/deliberate"]
+  R --> O["OpenAI Chat Completions: GPT-5.6"]
   O --> R
   R --> F
 ~~~
 
-The Flutter source lives in [flutter_app](flutter_app). The generated production bundle in [public](public) is served by Vercel, while [api/deliberate.js](api/deliberate.js) is the server-side streaming relay.
+The browser UI is built with Flutter. In Live mode, it sends a bounded request to `/api/deliberate`; the Vercel function keeps `OPENAI_API_KEY` on the server, forces streaming, and forwards the response to the app. Example Mode is scripted and makes no network request.
 
-The relay pins every live request to `gpt-5.6`, forces SSE streaming, caps request and completion sizes, uses strict server-owned JSON schemas for the Auto-fill and Mediator UI payloads, and includes a best-effort per-instance abuse guard. For public-scale use, add authentication, durable distributed rate limits, budget alerts, monitoring, and a reviewed privacy policy.
+## Try it
+
+### Example Mode — no API key needed
+
+1. Open [asembi.vercel.app](https://asembi.vercel.app/).
+2. Enter a decision, then select **Use example**.
+3. Follow the first hearing, assumption check, challenge round, and final brief.
+
+### Live GPT-5.6 Mode
+
+Select **Use Live GPT-5.6** when starting a review. The app never asks a visitor to paste an API key into the browser.
 
 ## Run locally
 
-### Example mode
+### Prerequisites
 
-The built app can be served as static files:
+- Flutter with Dart 3.12 or newer
+- A Vercel project and `OPENAI_API_KEY` only if you want Live mode
+
+### Run the built Example Mode
 
 ~~~bash
 python3 -m http.server 4173 --directory public
 ~~~
 
-Open `http://localhost:4173` and select **Use example**. It requires no key and never claims to analyze a user’s facts.
+Open `http://localhost:4173` and choose **Use example**.
 
 ### Develop the Flutter app
 
@@ -90,35 +113,31 @@ flutter pub get
 flutter run -d chrome
 ~~~
 
-Create the Vercel-ready bundle after a change:
+Build the deployable bundle after a change:
 
 ~~~bash
 cd flutter_app
 flutter build web --release --output ../public
 ~~~
 
-### Live GPT-5.6 mode
+### Enable Live mode on Vercel
 
 1. Import this repository into Vercel.
-2. Set `OPENAI_API_KEY` in the Vercel project environment variables.
-3. Redeploy.
-4. Choose **Use Live GPT-5.6** from the app’s response-mode control.
+2. Add `OPENAI_API_KEY` to the Vercel project environment variables.
+3. Redeploy the project.
 
-The key stays only in Vercel’s server environment. Avoid entering personal identifiers, confidential customer data, or account information into a live hearing.
+## Data and safety
 
-## Trust boundaries
-
+- Example Mode is a fixed local walkthrough; it does not send a request.
+- Live Mode sends the decision and optional context to the Vercel relay and OpenAI. Do not enter account details, personal identifiers, confidential customer information, or secrets.
 - Asembi is a planning aid, not medical, legal, financial, tax, investment, emergency, crisis, or professional relationship advice.
-- It does not verify salary, offer, tax, visa, housing, funding, market, customer, school, or employer claims. Treat material details as user-provided until independently verified.
-- Some high-stakes topics are redirected to qualified support rather than sent into the council flow.
-- Example mode is illustrative only. Live mode sends the decision record to the app relay and OpenAI to produce the streamed hearing.
+- The council does not verify salary, offer, visa, housing, market, funding, customer, employer, or school claims. Verify important facts independently.
 
-## Submission and public-launch checklist
+## Repository map
 
-The strongest evidence for this project will be real, measured use:
-
-- Add the public YouTube demo URL and primary Codex Session ID in the [submission details](#submission-details) section above.
-- Publish a public YouTube video that is three minutes or shorter and includes an English voiceover explaining Asembi, Codex, and GPT-5.6.
-- Run 3–5 usability sessions with people making a live decision.
-- Compare the same cases with a single-model answer and publish the honest results.
-- Add durable authentication, distributed rate limits, budget controls, monitoring, and a privacy policy before broad access.
+| Path | Purpose |
+| --- | --- |
+| [`flutter_app/lib/main.dart`](flutter_app/lib/main.dart) | Flutter web interface and decision-flow state |
+| [`api/deliberate.js`](api/deliberate.js) | Server-side GPT-5.6 streaming relay |
+| [`public`](public) | Generated production bundle deployed by Vercel |
+| [`flutter_app/assets/asembi-logo.png`](flutter_app/assets/asembi-logo.png) | Official Asembi mark |
